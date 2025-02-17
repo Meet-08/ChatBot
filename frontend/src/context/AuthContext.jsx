@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { checkAuthStatus, loginUser } from '../helpers/apiCommunicators';
 
 const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
@@ -6,11 +7,21 @@ export const AuthProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
-        //TO do
+        ; (async () => {
+            const data = await checkAuthStatus();
+            if (data) {
+                setUser({ email: data.email, name: data.name });
+                setIsLoggedIn(true);
+            }
+        })();
     }, []);
 
     const login = async (email, password) => {
-
+        const data = await loginUser(email, password);
+        if (data) {
+            setUser({ email: data.email, name: data.name });
+            setIsLoggedIn(true);
+        }
     }
 
     const signup = async (name, email, password) => {

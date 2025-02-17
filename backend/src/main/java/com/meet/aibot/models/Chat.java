@@ -24,4 +24,8 @@ public class Chat {
     @NotBlank
     private String content;
 
+    public Chat(String role, String content) {
+        this.role = role;
+        this.content = content;
+    }
 }

@@ -21,7 +21,9 @@ const CustomizedInput = (props) => {
                         color: "white",
                     }
                 }
-            }} />
+            }}
+            autoComplete='off'
+        />
     )
 }
 

@@ -18,15 +18,28 @@ public class UserService {
         this.encoder = encoder;
     }
 
-    public String createUser(User user) {
+    public User createUser(User user) {
         if (repo.findOneByEmail(user.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
         user.setPassword(encoder.encode(user.getPassword()));
-        return repo.save(user).getId();
+        repo.save(user);
+        user.setPassword(null);
+        return user;
     }
 
-    public String verifyUser(String email, String password) {
+    public User updateUser(User user) {
+        User existingUser = repo.findOneByEmail(user.getEmail()).orElse(null);
+        if (existingUser == null) {
+            throw new RuntimeException("User not found");
+        }
+        System.out.println(existingUser);
+        repo.save(existingUser);
+        existingUser.setPassword(null);
+        return existingUser;
+    }
+
+    public User verifyUser(String email, String password) {
        User user = repo.findOneByEmail(email).orElse(null);
        if(user == null) {
            throw new RuntimeException("User not found");
@@ -34,7 +47,11 @@ public class UserService {
        if(!encoder.matches(password, user.getPassword())) {
            throw new RuntimeException("Invalid password");
        }
-       return user.getId();
+       return user;
+    }
+
+    public User getUser(String email) {
+        return repo.findOneByEmail(email).orElse(null);
     }
 
     public List<User> getAllUsers() {

@@ -2,7 +2,6 @@ import React from 'react'
 import Header from './Components/Header'
 import { Route, Routes } from 'react-router-dom'
 import { Home, Chat, Login, NotFound, Signup } from './pages/page'
-import { useAuth } from './context/AuthContext'
 
 const App = () => {
   return (
