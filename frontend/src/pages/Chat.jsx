@@ -1,10 +1,12 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Avatar, Box, Button, IconButton, Typography } from '@mui/material'
 import { useAuth } from '../context/AuthContext'
 import { red } from '@mui/material/colors';
 import ChatItem from '../Components/chat/ChatItem';
 import { IoMdSend } from 'react-icons/io';
-import { sendChatRequest } from '../helpers/apiCommunicators';
+import { sendChatRequest, getPreviousChatRequest, deleteChats } from '../helpers/apiCommunicators';
+import toast from 'react-hot-toast';
 
 
 const Chat = () => {
@@ -12,6 +14,27 @@ const Chat = () => {
     const auth = useAuth();
     const inputRef = useRef(null);
     const [chatMessages, setChatMessages] = useState([]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!auth?.user) {
+            return navigate("/");
+        }
+    }, []);
+
+    useEffect(() => {
+        if (auth?.isLoggedIn && auth?.user) {
+            toast.loading("Loading Chats", { id: "loadchats" });
+            getPreviousChatRequest().then((data) => {
+                console.log(data);
+                setChatMessages(data);
+                toast.success("Successfully loaded chats", { id: "loadchats" });
+            }).catch((err) => {
+                console.log(err);
+                toast.error("Loading failed", { id: "loadchats" });
+            });
+        }
+    }, [auth]);
 
     const handleSubmit = async () => {
         const content = inputRef.current?.value;
@@ -27,7 +50,19 @@ const Chat = () => {
 
         const chatData = await sendChatRequest(content);
         console.log(chatData);
-        // setChatMessages([...chatData.chats]);
+        setChatMessages([...chatData]);
+    }
+
+    const handleDeleteChats = async () => {
+        toast.loading("Deleting Chats", { id: "deletechats" });
+        try {
+            deleteChats();
+            setChatMessages([]);
+            toast.success("Successfully deleted chats", { id: "deletechats" });
+        } catch (error) {
+            console.log(error);
+            toast.error("Deleting failed", { id: "deletechats" });
+        }
     }
 
     return (
@@ -73,7 +108,9 @@ const Chat = () => {
                         ":hover": {
                             bgcolor: red.A400
                         }
-                    }}>
+                    }}
+                        onClick={handleDeleteChats}
+                    >
                         Clear conversion
                     </Button>
                 </Box>
@@ -89,7 +126,7 @@ const Chat = () => {
                     Model - Qwen-2.5:0.5b
                 </Typography>
                 <Box sx={{
-                    width: "100%",
+                    width: { md: "75vw", sm: "100%", xs: "100%" },
                     height: "60vh",
                     borderRadius: 3,
                     mx: "auto",

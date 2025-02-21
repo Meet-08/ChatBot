@@ -11,7 +11,7 @@ const Header = () => {
 
     return (
         <AppBar sx={{ bgcolor: "transparent", position: "static", boxShadow: "none" }}>
-            <Toolbar sx={{ display: "flex" }}>
+            <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Logo />
                 <div>
                     {auth?.isLoggedIn ? (
@@ -22,7 +22,7 @@ const Header = () => {
                     ) : (
                         <>
                             <NavigationLink bg='bg-[#00fffc]' to="/login" text="Login" textColor="text-black" />
-                            <NavigationLink bg='bg-[#51538f]' to="/signup" text="signup" textColor="text-white" onClick={auth.logout} />
+                            <NavigationLink bg='bg-[#51538f]' to="/signup" text="signup" textColor="text-white" />
                         </>
                     )}
                 </div>

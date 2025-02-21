@@ -1,11 +1,12 @@
 package com.meet.aibot.controller;
 
 import com.meet.aibot.dto.LoginRequest;
+import com.meet.aibot.dto.LoginResponse;
 import com.meet.aibot.dto.RegistrationRequest;
+import com.meet.aibot.dto.RegistrationResponse;
 import com.meet.aibot.models.User;
-import com.meet.aibot.utils.CookieUtil;
-import com.meet.aibot.utils.JwtUtil;
 import com.meet.aibot.service.UserService;
+import com.meet.aibot.utils.CookieUtil;
 import com.meet.aibot.utils.UserUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,95 +19,86 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @AllArgsConstructor
 public class UserController {
 
     private final UserService userService;
-    private final JwtUtil jwtUtil;
     private final UserUtil userUtil;
 
     @PostMapping("/signup")
     public ResponseEntity<User> userSignUp(@Valid @RequestBody RegistrationRequest request, HttpServletResponse res) {
-        System.out.println(request);
         try {
-            User user = new User();
-            user.setName(request.getName());
-            user.setEmail(request.getEmail());
-            user.setPassword(request.getPassword());
-            user.setChats(new ArrayList<>());
-            String token = jwtUtil.generateToken(request.getEmail(), user.getId());
+            RegistrationResponse registrationResponse = userService.registerUser(request);
+
+            // Create a cookie with the JWT token from the service layer
             Cookie cookie = CookieUtil.createCookie("auth_token",
-                    token,
-                    24 * 60 * 60 * 1000,
+                    registrationResponse.getToken(),
+                    24 * 60 * 60,  // maxAge is in seconds
                     true,
                     false,
                     "/");
             res.addCookie(cookie);
-            return new ResponseEntity<>(userService.createUser(user), HttpStatus.CREATED);
+
+            return new ResponseEntity<>(registrationResponse.getUser(), HttpStatus.CREATED);
         } catch (Exception e) {
+            // Log the error using a proper logger in production code
             System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.valueOf(401));
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<User> userLogin(@Valid @RequestBody LoginRequest request, HttpServletResponse res) {
         try {
+            // Delegate the user verification and token generation to the service layer
+            LoginResponse loginResponse = userService.loginUser(request);
 
-            User user = userService.verifyUser(request.getEmail(), request.getPassword());
-            String id = user.getId();
-            user.setPassword(null);
-            String token = "";
-            if (id != null) {
-                token = jwtUtil.generateToken(request.getEmail(), id);
-                // Create a cookie to hold the JWT
-//                Cookie cookie = new Cookie("auth_token", token);
-//                cookie.setHttpOnly(true);
-//                cookie.setSecure(false);   // Use true in production when using HTTPS
-//                cookie.setPath("/");
-//                cookie.setMaxAge(24 * 60 * 60 * 1000);
-                Cookie cookie = CookieUtil.createCookie("auth_token",
-                        token,
-                        24 * 60 * 60 * 1000,
-                        true,
-                        false,
-                        "/");
-                res.addCookie(cookie);
-            } else {
-                throw new RuntimeException("User not found");
-            }
-            return new ResponseEntity<>(user, HttpStatus.OK);
+            // Create a cookie to hold the JWT token
+            Cookie cookie = CookieUtil.createCookie("auth_token",
+                    loginResponse.getToken(),
+                    24 * 60 * 60,
+                    true,
+                    false,
+                    "/");
+            res.addCookie(cookie);
+
+            return new ResponseEntity<>(loginResponse.getUser(), HttpStatus.OK);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
     }
 
+    @GetMapping("/logout")
+    public ResponseEntity<?> userLogout(HttpServletResponse res) {
+        Cookie cookie = CookieUtil.createCookie("auth_token",
+                "",
+                0,
+                true,
+                false,
+                "/");
+        res.addCookie(cookie);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @GetMapping("/auth-status")
     public ResponseEntity<User> authStatus(HttpServletRequest req) {
-        // Fetch the corresponding User from your service
         User user = userUtil.getUser();
-
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-
         user.setPassword(null);
         return ResponseEntity.ok(user);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();

@@ -1,4 +1,6 @@
-import React from 'react'
+import { useEffect } from 'react'
+import React, { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Box, Button, Typography } from '@mui/material'
 import { IoIosLogIn } from 'react-icons/io'
 import toast from 'react-hot-toast'
@@ -8,6 +10,13 @@ import { useAuth } from '../context/AuthContext'
 const Login = () => {
 
     const auth = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (auth?.isLoggedIn) {
+            navigate("/");
+        }
+    }, [auth]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,6 +27,9 @@ const Login = () => {
             toast.loading("Signing In", { id: "login" });
             await auth?.login(email, password);
             toast.success("Signed In Successfully", { id: "login" });
+            setTimeout(() => {
+                navigate("/");
+            }, 100);
         } catch (error) {
             toast.success("Signed In Failed", { id: "login" });
             console.log(error);

@@ -1,10 +1,32 @@
 import React from 'react'
 import { Avatar, Box, Typography } from '@mui/material'
 import { useAuth } from '../../context/AuthContext'
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import ReactMarkdown from 'react-markdown';
+import { coldarkDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+const extractCodeFromString = (message) => {
+    if (message.includes("```")) {
+        const blocks = message.split("```");
+        return blocks;
+    }
+}
+
+const isCodeBlock = (str) => {
+    if (str.includes("=") || str.includes(";") ||
+        str.includes("[") || str.includes("]") ||
+        str.includes("{") || str.includes("}") ||
+        str.includes("#") || str.includes("//")) {
+        return true;
+    }
+    return false;
+}
 
 const ChatItem = ({ content, role }) => {
 
     const auth = useAuth();
+    const messageBlocks = extractCodeFromString(content);
+
 
     return role === "assistant" ? (
         <Box sx={{
@@ -21,9 +43,32 @@ const ChatItem = ({ content, role }) => {
                 <img src="openai.png" alt="openai" className='w-7.5' />
             </Avatar>
             <Box>
-                <Typography fontSize={"20px"}>
-                    {content}
-                </Typography>
+                {
+                    !messageBlocks && (
+                        <Typography fontSize={"20px"}>
+                            <ReactMarkdown>
+                                {content}
+                            </ReactMarkdown>
+                        </Typography>
+                    )
+                }
+                {
+                    messageBlocks &&
+                    messageBlocks.length &&
+                    messageBlocks.map((block, index) =>
+                        isCodeBlock(block) ? (
+                            <SyntaxHighlighter key={index} style={coldarkDark} language='java' showLineNumbers wrapLongLines>
+                                {block}
+                            </SyntaxHighlighter>
+                        ) : (
+                            <Typography key={index} fontSize={"20px"}>
+                                <ReactMarkdown>
+                                    {block}
+                                </ReactMarkdown>
+                            </Typography>
+                        )
+                    )
+                }
             </Box>
         </Box>
     ) : (
@@ -44,7 +89,7 @@ const ChatItem = ({ content, role }) => {
                 {auth?.user?.name[0]}
             </Avatar>
             <Box>
-                <Typography fontSize={"20px"} color='textSecondary'>
+                <Typography fontSize={"20px"}>
                     {content}
                 </Typography>
             </Box>
