@@ -59,13 +59,7 @@ public class UserController {
             LoginResponse loginResponse = userService.loginUser(request);
 
             // Create a cookie to hold the JWT token
-            Cookie cookie = CookieUtil.createCookie("auth_token",
-                    loginResponse.getToken(),
-                    24 * 60 * 60,
-                    true,
-                    false,
-                    "/");
-            res.addCookie(cookie);
+            res.addCookie(CookieUtil.deleteCookie("auth"));
 
             return new ResponseEntity<>(loginResponse.getUser(), HttpStatus.OK);
         } catch (Exception e) {

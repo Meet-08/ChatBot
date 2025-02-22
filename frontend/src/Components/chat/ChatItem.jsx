@@ -1,4 +1,5 @@
 import React from 'react'
+import AnimatedTextMessage from './AnimatedTextMessage'
 import { Avatar, Box, Typography } from '@mui/material'
 import { useAuth } from '../../context/AuthContext'
 import Markdown from 'react-markdown'
@@ -26,7 +27,6 @@ const ChatItem = ({ content, role }) => {
 
     const auth = useAuth();
     const messageBlocks = extractCodeFromString(content);
-
 
     return role === "assistant" ? (
         <Box sx={{
@@ -63,7 +63,7 @@ const ChatItem = ({ content, role }) => {
                         ) : (
                             <Typography key={index} fontSize={"20px"} component={'div'}>
                                 <Markdown>
-                                    {content}
+                                    <AnimatedTextMessage text={block} delay={3000} />
                                 </Markdown>
                             </Typography>
                         )

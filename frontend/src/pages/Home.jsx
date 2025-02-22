@@ -33,7 +33,7 @@ const Home = () => {
                 my: 10,
             }}>
                 <img src="robot.png" alt="Robot" className='w-[200px] m-auto' />
-                <img src="openai.png" alt="openai" className='w-[200px] m-auto invert-100 rotate' />
+                <img src="openai.png" alt="openai" className='w-[200px] m-auto rotate' />
             </Box>
 
             <Box sx={{

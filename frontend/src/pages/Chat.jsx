@@ -16,6 +16,7 @@ const Chat = () => {
     const inputRef = useRef(null);
     const [chatMessages, setChatMessages] = useState([]);
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!auth?.user) {
@@ -37,6 +38,7 @@ const Chat = () => {
     }, [auth]);
 
     const handleSubmit = async () => {
+        setLoading(true);
         const content = inputRef.current?.value;
         if (inputRef && inputRef.current) {
             inputRef.current.value = "";
@@ -50,6 +52,7 @@ const Chat = () => {
 
         const chatData = await sendChatRequest(content);
         setChatMessages([...chatData]);
+        setLoading(false);
     }
 
     const handleDeleteChats = async () => {
@@ -141,6 +144,7 @@ const Chat = () => {
                             <ChatItem content={chat.content} role={chat.role} key={index} />
                         ))
                     }
+                    {loading && <Typography sx={{ color: "white" }}>Generating...</Typography>}
                 </Box>
                 <div className='w-full rounded-lg bg-[rgb(17,27,39)] flex m-auto mt-6 md:mt-2'>
                     {" "}

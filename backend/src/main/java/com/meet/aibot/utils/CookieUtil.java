@@ -12,4 +12,10 @@ public class CookieUtil {
         cookie.setPath(path);
         return cookie;
     }
+
+    public static Cookie deleteCookie(String name) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setMaxAge(0);
+        return cookie;
+    }
 }
