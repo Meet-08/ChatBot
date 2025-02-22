@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { red } from '@mui/material/colors';
 import ChatItem from '../Components/chat/ChatItem';
 import { IoMdSend } from 'react-icons/io';
+import { MdDelete } from "react-icons/md";
 import { sendChatRequest, getPreviousChatRequest, deleteChats } from '../helpers/apiCommunicators';
 import toast from 'react-hot-toast';
 
@@ -26,7 +27,6 @@ const Chat = () => {
         if (auth?.isLoggedIn && auth?.user) {
             toast.loading("Loading Chats", { id: "loadchats" });
             getPreviousChatRequest().then((data) => {
-                console.log(data);
                 setChatMessages(data);
                 toast.success("Successfully loaded chats", { id: "loadchats" });
             }).catch((err) => {
@@ -49,7 +49,6 @@ const Chat = () => {
         setChatMessages((prev) => [...prev, newMessage]);
 
         const chatData = await sendChatRequest(content);
-        console.log(chatData);
         setChatMessages([...chatData]);
     }
 
@@ -143,13 +142,21 @@ const Chat = () => {
                         ))
                     }
                 </Box>
-                <div className='w-full rounded-lg bg-[rgb(17,27,39)] flex m-auto'>
+                <div className='w-full rounded-lg bg-[rgb(17,27,39)] flex m-auto mt-6 md:mt-2'>
                     {" "}
                     <input
                         ref={inputRef}
                         type="text"
                         className='w-full bg-transparent p-3 text-xl outline-none text-white'
                     />
+                    <IconButton onClick={handleDeleteChats}
+                        sx={{
+                            ml: "auto",
+                            color: "white",
+                            display: { md: "none", sm: "block", xs: "block" }
+                        }}>
+                        <MdDelete />
+                    </IconButton>
                     <IconButton onClick={handleSubmit}
                         sx={{
                             ml: "auto",

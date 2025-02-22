@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { checkAuthStatus, loginUser, logoutUser } from '../helpers/apiCommunicators';
+import { checkAuthStatus, loginUser, logoutUser, signupUser } from '../helpers/apiCommunicators';
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext(null);
@@ -26,7 +26,11 @@ export const AuthProvider = ({ children }) => {
     }
 
     const signup = async (name, email, password) => {
-
+        const data = await signupUser(name, email, password);
+        if (data) {
+            setUser({ email: email, name: name });
+            setIsLoggedIn(true);
+        }
     }
 
     const logout = async () => {
@@ -35,7 +39,6 @@ export const AuthProvider = ({ children }) => {
             toast.success("Logout Successfully");
             setUser(null);
             setIsLoggedIn(false);
-            window.location.reload();
         } catch (error) {
             console.log(error);
             toast.error("Logout failed")

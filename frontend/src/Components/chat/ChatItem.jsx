@@ -1,8 +1,8 @@
 import React from 'react'
 import { Avatar, Box, Typography } from '@mui/material'
 import { useAuth } from '../../context/AuthContext'
+import Markdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import ReactMarkdown from 'react-markdown';
 import { coldarkDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const extractCodeFromString = (message) => {
@@ -45,10 +45,10 @@ const ChatItem = ({ content, role }) => {
             <Box>
                 {
                     !messageBlocks && (
-                        <Typography fontSize={"20px"}>
-                            <ReactMarkdown>
+                        <Typography fontSize={"20px"} component={'div'}>
+                            <Markdown>
                                 {content}
-                            </ReactMarkdown>
+                            </Markdown>
                         </Typography>
                     )
                 }
@@ -57,14 +57,14 @@ const ChatItem = ({ content, role }) => {
                     messageBlocks.length &&
                     messageBlocks.map((block, index) =>
                         isCodeBlock(block) ? (
-                            <SyntaxHighlighter key={index} style={coldarkDark} language='java' showLineNumbers wrapLongLines>
+                            <SyntaxHighlighter key={index} style={coldarkDark} language='java' showLineNumbers customStyle={{ overflowX: "hidden" }}>
                                 {block}
                             </SyntaxHighlighter>
                         ) : (
-                            <Typography key={index} fontSize={"20px"}>
-                                <ReactMarkdown>
-                                    {block}
-                                </ReactMarkdown>
+                            <Typography key={index} fontSize={"20px"} component={'div'}>
+                                <Markdown>
+                                    {content}
+                                </Markdown>
                             </Typography>
                         )
                     )
@@ -74,7 +74,7 @@ const ChatItem = ({ content, role }) => {
     ) : (
         <Box sx={{
             display: "flex",
-            p: 2,
+            p: 1.5,
             ml: "auto",
             width: { md: "50%", sm: "100%", xs: "100%" },
             bgcolor: "#004d56",
@@ -88,7 +88,7 @@ const ChatItem = ({ content, role }) => {
             }}>
                 {auth?.user?.name[0]}
             </Avatar>
-            <Box>
+            <Box sx={{ my: "auto" }}>
                 <Typography fontSize={"20px"}>
                     {content}
                 </Typography>

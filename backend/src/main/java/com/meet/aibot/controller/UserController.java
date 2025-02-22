@@ -44,7 +44,7 @@ public class UserController {
                     "/");
             res.addCookie(cookie);
 
-            return new ResponseEntity<>(registrationResponse.getUser(), HttpStatus.CREATED);
+            return new ResponseEntity<>(registrationResponse.getUser(), HttpStatus.OK);
         } catch (Exception e) {
             // Log the error using a proper logger in production code
             System.out.println(e.getMessage());
