@@ -59,7 +59,13 @@ public class UserController {
             LoginResponse loginResponse = userService.loginUser(request);
 
             // Create a cookie to hold the JWT token
-            res.addCookie(CookieUtil.deleteCookie("auth"));
+            Cookie cookie = CookieUtil.createCookie("auth_token",
+                    loginResponse.getToken(),
+                    24 * 60 * 60,
+                    true,
+                    false,
+                    "/");
+            res.addCookie(cookie);
 
             return new ResponseEntity<>(loginResponse.getUser(), HttpStatus.OK);
         } catch (Exception e) {
@@ -70,13 +76,7 @@ public class UserController {
 
     @GetMapping("/logout")
     public ResponseEntity<?> userLogout(HttpServletResponse res) {
-        Cookie cookie = CookieUtil.createCookie("auth_token",
-                "",
-                0,
-                true,
-                false,
-                "/");
-        res.addCookie(cookie);
+        res.addCookie(CookieUtil.deleteCookie("auth_token"));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

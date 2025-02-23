@@ -32,7 +32,7 @@ const Chat = () => {
                 toast.success("Successfully loaded chats", { id: "loadchats" });
             }).catch((err) => {
                 console.log(err);
-                toast.error("Loading failed", { id: "loadchats" });
+                toast.error("No chat found", { id: "loadchats" });
             });
         }
     }, [auth]);

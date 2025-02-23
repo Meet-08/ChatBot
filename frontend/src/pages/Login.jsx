@@ -30,7 +30,7 @@ const Login = () => {
                 navigate("/");
             }, 100);
         } catch (error) {
-            toast.success("Signed In Failed", { id: "login" });
+            toast.error("Signed In Failed", { id: "login" });
             console.log(error);
         }
     }

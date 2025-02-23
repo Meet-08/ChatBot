@@ -18,10 +18,19 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        const data = await loginUser(email, password);
-        if (data) {
-            setUser({ email: data.email, name: data.name });
-            setIsLoggedIn(true);
+        try {
+            const data = await loginUser(email, password);
+            console.log(data);
+            if (data) {
+                setUser({ email: data.email, name: data.name });
+                setIsLoggedIn(true);
+            } else {
+                throw new Error("Invalid Credentials");
+
+            }
+        } catch (error) {
+            throw new Error("Invalid Credentials");
+
         }
     }
 

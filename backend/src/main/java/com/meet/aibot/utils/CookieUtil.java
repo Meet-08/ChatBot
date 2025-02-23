@@ -14,8 +14,6 @@ public class CookieUtil {
     }
 
     public static Cookie deleteCookie(String name) {
-        Cookie cookie = new Cookie(name, null);
-        cookie.setMaxAge(0);
-        return cookie;
+        return createCookie(name, null, 0, true, false, "/");
     }
 }
